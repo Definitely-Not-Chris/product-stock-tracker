@@ -32,7 +32,7 @@ public class ProductService implements IProductService {
         var records = this.fileParser.parse(reader);
         var products = this.mapToProducts(records);
 
-        return this.productRepository.saveAll(products);
+        return this.saveProducts(products);
     }
 
     public List<Product> importProducts(String filePath) throws Exception {
@@ -40,7 +40,30 @@ public class ProductService implements IProductService {
         var records = this.fileParser.parse(reader);
         var products = this.mapToProducts(records);
 
-        return this.productRepository.saveAll(products);
+        return this.saveProducts(products);
+    }
+
+    //saveProducts function accepts list of products then iterates over it and
+    // checks if product SKU already exists in database then update existing product else save new product
+    private List<Product> saveProducts(List<Product> products) {
+        var savedProducts = new ArrayList<Product>();
+
+        for(var product : products) {
+            var existingProduct = this.productRepository.findAllBySku(product.getSku());
+
+            if(existingProduct == null) {
+                var createdProduct = this.productRepository.save(product);
+                savedProducts.add(createdProduct);
+            } else {
+                existingProduct.setStockQuantity(product.getStockQuantity());
+                existingProduct.setName(product.getName());
+
+                var updatedProduct = this.productRepository.save(existingProduct);
+                savedProducts.add(updatedProduct);
+            }
+        }
+
+        return savedProducts;
     }
 
     private Reader processFile(String filePath) throws Exception {
@@ -68,6 +91,7 @@ public class ProductService implements IProductService {
         return new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
     }
 
+
     //FOR-IMPROVEMENT: create ProductMapper class to map csv records to products avoiding hard-dependency
     //FOR-IMPROVEMENT: handle numeric cell data as well
 
@@ -76,7 +100,13 @@ public class ProductService implements IProductService {
         var products = new ArrayList<Product>();
 
         for(List<String> record : records) {
-            products.add(new Product(record.get(0), record.get(1)));
+            products.add(
+                    new Product(
+                        record.get(0).toUpperCase(),
+                        record.get(1),
+                        Integer.parseInt(record.get(2))
+                    )
+            );
         }
         return products;
     }
