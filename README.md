@@ -38,6 +38,7 @@
     - Reads product stock data from a CSV file
     - Saves the product data to a database
     - Provides a REST API endpoint to view the products 
+    - Create atleast 2 unit test for service
     - Logs a message when a product has zero stock
 
 ## Any assumptions or design decisions I made:
@@ -51,6 +52,7 @@
     - I would have separate the product and stock data into different tables for database normalization
     - I would have create product mapper class for it to be not tightly coupled with product entity and service
     - I would have create a DTO class for request and response
+    - I would have create a test for duplicated products
 
 ## 
 ***
