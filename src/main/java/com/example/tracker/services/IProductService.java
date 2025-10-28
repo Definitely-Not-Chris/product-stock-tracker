@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IProductService {
-    int uploadProducts(MultipartFile var1) throws Exception;
-
+    List<Product> uploadProducts(MultipartFile file) throws Exception;
+    List<Product> importProducts(String filePath) throws Exception;
     List<Product> findAllProducts();
 }
