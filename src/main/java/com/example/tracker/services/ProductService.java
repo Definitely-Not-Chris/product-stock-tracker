@@ -36,7 +36,7 @@ public class ProductService implements IProductService {
     }
 
     public List<Product> importProducts(String filePath) throws Exception {
-        var reader = this.processFile(filePath);
+        var reader = this.processLocalFile(filePath);
         var records = this.fileParser.parse(reader);
         var products = this.mapToProducts(records);
 
@@ -49,6 +49,10 @@ public class ProductService implements IProductService {
         var savedProducts = new ArrayList<Product>();
 
         for(var product : products) {
+            if(product.getStockQuantity() == 0) {
+                System.out.println("Product " + product.getSku() + " is out of stock" );
+            }
+
             var existingProduct = this.productRepository.findAllBySku(product.getSku());
 
             if(existingProduct == null) {
@@ -66,7 +70,7 @@ public class ProductService implements IProductService {
         return savedProducts;
     }
 
-    private Reader processFile(String filePath) throws Exception {
+    private Reader processLocalFile(String filePath) throws Exception {
         Path path = Path.of(filePath);
         File file = path.toFile();
 
